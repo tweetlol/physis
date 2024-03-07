@@ -58,3 +58,5 @@ class star(object):
         mag = direction.norm()
         return(- direction / (mag**3))
 ```
+
+more in examples
