@@ -1,6 +1,6 @@
 # physis
 
-*pygame / torch class for particle simulations*
+ pygame / torch class for particle simulations
 
 ## prequisites
 
