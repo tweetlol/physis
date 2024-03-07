@@ -68,7 +68,7 @@ for i in range(STATIC_AMOUNT):
         )
     STATIC_STARS.append(spawn)
 
-# MAKE BROWNIAN MOTION PROOF OF GRAVITY STARS ACC = 0
+# MAKE BROWNIAN MOTION PROOF OF GRAVITY STARS
 BROWN_STARS = []
 for i in range(BROWN_AMOUNT):
     spawn = star(
