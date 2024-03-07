@@ -52,8 +52,9 @@ class star(object):
 
     def draw(self, screen):
         pygame.draw.circle(screen, self.color, (self.pos[0].item(),self.pos[1].item()), self.radius)
-# CALCULATE GRAVITATIONAL FORCE = ACC FROM STAR AT POS_OTHER
-    def calculate_acc_due_to(self, exerting): # INSERT EXERTING STAR AS ARG2
+        
+    def calculate_acc_due_to(self, exerting):
+        # INSERT EXERTING STAR AS ARGUMENT
         direction = self.pos - exerting.pos
         mag = direction.norm()
         return(- direction / (mag**3))
