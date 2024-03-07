@@ -18,6 +18,11 @@ from physis import star, TextObject
 ```
 
 star particle class for simulations
+insert arguments:
+- torch.tensor([x,y]) for pos, vel and acc
+- scalar for radius,
+- (255, 255, 255) RGB tuple for color
+- iterate methods every frame
 
 ```py
 class star(object):
@@ -49,5 +54,5 @@ class star(object):
     def calculate_acc_due_to(self, exerting): # INSERT EXERTING STAR AS ARG2
         direction = self.pos - exerting.pos
         mag = direction.norm()
-        return(- G * direction / (mag**3))
+        return(- direction / (mag**3))
 ```
