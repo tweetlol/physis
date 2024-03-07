@@ -112,6 +112,9 @@ while True:
 # BROWNS
     for item in BROWN_STARS:
         green.acc += G * green.calculate_acc_due_to(item)
+        for brown in BROWN_STARS:
+            if brown != item:
+                brown.acc += G * brown.calculate_acc_due_to(item)
         item.move()
         item.check_borders(WIDTH, HEIGHT)
         item.draw(screen)

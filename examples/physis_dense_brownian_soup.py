@@ -73,7 +73,7 @@ BROWN_STARS = []
 for i in range(BROWN_AMOUNT):
     spawn = star(
         torch.tensor([random.uniform(0,WIDTH), random.uniform(0,HEIGHT)], dtype=TENSOR_TYPE), # RANDOM POSITIONS
-        torch.tensor([0, 0], dtype=TENSOR_TYPE), # NO INITIAL VELOCTIIES
+        torch.tensor([random.uniform(-0.1,0.1), random.uniform(-0.1,0.1)], dtype=TENSOR_TYPE), # NO INITIAL VELOCTIIES
         torch.tensor([0, 0], dtype=TENSOR_TYPE), # NO INITIAL ACCELERATIONS
         BROWN_R,BROWN_COLOR # RADIUS, COLOR
         )
@@ -110,6 +110,9 @@ while True:
 # BROWNS
     for item in BROWN_STARS:
         green.acc += G * green.calculate_acc_due_to(item)
+        for brown in BROWN_STARS:
+            if brown != item:
+                brown.acc += G * brown.calculate_acc_due_to(item)
         item.move()
         item.check_borders(WIDTH, HEIGHT)
         item.draw(screen)
