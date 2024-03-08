@@ -26,8 +26,8 @@ FONT_STYLE = 'Arial'
 ## ENGINE
 TENSOR_TYPE = torch.float64
 FPS = 60
-# SETS GRAVITATION INTERACTION STRENGHT
-G = 0.2
+## G SETS GRAVITATION INTERACTION STRENGHT
+G = 1
 
 BROWN_AMOUNT = 8
 STATIC_AMOUNT = 20
@@ -45,7 +45,31 @@ green_vel = torch.tensor([5, 0], dtype=TENSOR_TYPE)
 green_acc = torch.tensor([0, 0], dtype=TENSOR_TYPE)
 
 # CELESTIAL POPULATION
+## THE RUNNER
 green = star(green_pos, green_vel, green_acc, STAR_R, STAR_COLOR)
+
+## MAKE OTHER STATIC STARS ACC = 0, d/dt(ACC) = 0
+STATIC_STARS = []
+for i in range(STATIC_AMOUNT):
+    spawn = star(
+        torch.tensor([random.uniform(0,WIDTH), random.uniform(0,HEIGHT)], dtype=TENSOR_TYPE), # RANDOM POSITIONS
+        torch.tensor([0, 0], dtype=TENSOR_TYPE), # NO VELOCTIIES
+        torch.tensor([0, 0], dtype=TENSOR_TYPE), # NO ACCELERATIONS
+        STATIC_R,STATIC_COLOR # RADIUS, COLOR
+        )
+    STATIC_STARS.append(spawn)
+
+## MAKE BROWNIAN MOTION PROOF OF GRAVITY STARS
+BROWN_STARS = []
+for i in range(BROWN_AMOUNT):
+    spawn = star(
+        torch.tensor([random.uniform(0,WIDTH), random.uniform(0,HEIGHT)], dtype=TENSOR_TYPE), # RANDOM POSITIONS
+        torch.tensor([random.uniform(-0.3,0.3), random.uniform(-0.3,0.3)], dtype=TENSOR_TYPE), # TINY INITIAL VELOCTIIES TO AVOID FREEFALLS
+        torch.tensor([0, 0], dtype=TENSOR_TYPE), # NO INITIAL ACCELERATIONS
+        BROWN_R,BROWN_COLOR # RADIUS, COLOR
+        )
+    BROWN_STARS.append(spawn)
+
 
 # TEXT OBJECTS
 TEXT_OBJECTS = []
@@ -58,29 +82,6 @@ green_textX = TextObject(f"V_X = {green.vel.tolist()[0]}", font_style, (55,155,5
 green_textY = TextObject(f"V_Y = {green.vel.tolist()[1]}", font_style, (55,155,55), (10, 70))
 TEXT_OBJECTS.append(green_textX)
 TEXT_OBJECTS.append(green_textY)
-
-# MAKE OTHER STATIC STARS ACC = 0, d/dt(ACC) = 0
-STATIC_STARS = []
-for i in range(STATIC_AMOUNT):
-    spawn = star(
-        torch.tensor([random.uniform(0,WIDTH), random.uniform(0,HEIGHT)], dtype=TENSOR_TYPE), # RANDOM POSITIONS
-        torch.tensor([0, 0], dtype=TENSOR_TYPE), # NO VELOCTIIES
-        torch.tensor([0, 0], dtype=TENSOR_TYPE), # NO ACCELERATIONS
-        STATIC_R,STATIC_COLOR # RADIUS, COLOR
-        )
-    STATIC_STARS.append(spawn)
-
-# MAKE BROWNIAN MOTION PROOF OF GRAVITY STARS ACC = 0
-BROWN_STARS = []
-for i in range(BROWN_AMOUNT):
-    spawn = star(
-        torch.tensor([random.uniform(0,WIDTH), random.uniform(0,HEIGHT)], dtype=TENSOR_TYPE), # RANDOM POSITIONS
-        torch.tensor([random.uniform(-0.3,0.3), random.uniform(-0.3,0.3)], dtype=TENSOR_TYPE), # TINY INITIAL VELOCTIIES TO AVOID FREEFALLS
-        torch.tensor([0, 0], dtype=TENSOR_TYPE), # NO INITIAL ACCELERATIONS
-        BROWN_R,BROWN_COLOR # RADIUS, COLOR
-        )
-    BROWN_STARS.append(spawn)
-
 
 
 ########################################## RUN THE ENGINE #############################################
@@ -112,6 +113,7 @@ while True:
 # BROWNS
     for item in BROWN_STARS:
         green.acc += G * green.calculate_acc_due_to(item)
+        item.acc += G * item.calculate_acc_due_to(green)
         for brown in BROWN_STARS:
             if brown != item:
                 brown.acc += G * brown.calculate_acc_due_to(item)
@@ -124,7 +126,6 @@ while True:
     green.move()
     green.check_borders(WIDTH, HEIGHT)
     green.draw(screen)
-    ## CALCULATE ACCELERATION DUE TO EVERYONE
     green.acc = torch.tensor([0,0], dtype=TENSOR_TYPE)
 
 

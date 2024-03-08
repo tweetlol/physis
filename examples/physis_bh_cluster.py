@@ -23,8 +23,8 @@ FONT_SIZE = 20
 FONT_STYLE = 'Arial'
 ## ENGINE
 TENSOR_TYPE = torch.float64
-FPS = 600
-G = 0.1 # SETS GRAVITATION INTERACTION STRENGHT
+FPS = 60
+G = 0.01 # SETS GRAVITATION INTERACTION STRENGHT
 
 
 BROWN_AMOUNT = 30
@@ -38,8 +38,8 @@ clock = pygame.time.Clock()
 font_style = pygame.font.SysFont(FONT_STYLE, FONT_SIZE)
 
 # INITIAL CONDITIONS
-green_pos = torch.tensor([WIDTH/2 + 100, HEIGHT/2+300], dtype=TENSOR_TYPE)
-green_vel = torch.tensor([10, 0], dtype=TENSOR_TYPE)
+green_pos = torch.tensor([WIDTH/2, HEIGHT/2], dtype=TENSOR_TYPE)
+green_vel = torch.tensor([0, 0], dtype=TENSOR_TYPE)
 green_acc = torch.tensor([0, 0], dtype=TENSOR_TYPE)
 
 # CELESTIAL POPULATION
@@ -60,8 +60,8 @@ for i in range(STATIC_AMOUNT):
 BROWN_STARS = []
 for i in range(BROWN_AMOUNT):
     spawn = star(
-        torch.tensor([random.uniform(WIDTH/2-100,WIDTH/2+100), random.uniform(HEIGHT/2-100,HEIGHT/2+100)], dtype=TENSOR_TYPE), # RANDOM POSITIONS
-        torch.tensor([random.uniform(-0.01,0.01), random.uniform(-0.01,0.01)], dtype=TENSOR_TYPE), # NO INITIAL VELOCTIIES
+        torch.tensor([random.uniform(WIDTH/2-100,WIDTH/2-50), random.uniform(HEIGHT/2-50,HEIGHT/2+50)], dtype=TENSOR_TYPE), # RANDOM POSITIONS
+        torch.tensor([random.uniform(-0.01,0.01), random.uniform(-.5,.5)], dtype=TENSOR_TYPE), # NO INITIAL VELOCTIIES
         torch.tensor([0, 0], dtype=TENSOR_TYPE), # NO INITIAL ACCELERATIONS
         BROWN_R,BROWN_COLOR # RADIUS, COLOR
         )
@@ -108,12 +108,14 @@ while True:
 # BROWNS
     for item in BROWN_STARS:
         green.acc += G * green.calculate_acc_due_to(item)
-        item.acc += item.calculate_acc_due_to(green)
-        for brown in BROWN_STARS:
+        item.acc += G * 1000 * item.calculate_acc_due_to(green)
+        """NO INTERACTION
+        for brown in BROWN_STARS: 
             if brown != item:
                 brown.acc += G * brown.calculate_acc_due_to(item)
+        """
         item.move()
-        item.check_borders(WIDTH, HEIGHT)
+        #item.check_borders(WIDTH, HEIGHT)
         item.draw(screen)
         item.acc = torch.tensor([0,0], dtype=TENSOR_TYPE)
 

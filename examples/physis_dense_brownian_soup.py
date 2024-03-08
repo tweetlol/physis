@@ -6,6 +6,8 @@ import random
 from pygame.locals import *
 
 from physis import star, TextObject
+
+
 # UI CONSTANTS
 ## STARS
 STAR_R = 5
@@ -23,12 +25,13 @@ FONT_SIZE = 20
 FONT_STYLE = 'Arial'
 ## ENGINE
 TENSOR_TYPE = torch.float64
-FPS = 600
-G = 1 # SETS GRAVITATION INTERACTION STRENGHT
+FPS = 60
+## G SETS GRAVITATION INTERACTION STRENGHT
+G = 1
 
 
-BROWN_AMOUNT = 15
-STATIC_AMOUNT = 150
+BROWN_AMOUNT = 2
+STATIC_AMOUNT = 300
 
 
 # ENGINE INIT
@@ -39,23 +42,11 @@ font_style = pygame.font.SysFont(FONT_STYLE, FONT_SIZE)
 
 # INITIAL CONDITIONS
 green_pos = torch.tensor([WIDTH/2 + 100, HEIGHT/2], dtype=TENSOR_TYPE)
-green_vel = torch.tensor([10, 0], dtype=TENSOR_TYPE)
+green_vel = torch.tensor([5, 0], dtype=TENSOR_TYPE)
 green_acc = torch.tensor([0, 0], dtype=TENSOR_TYPE)
 
 # CELESTIAL POPULATION
 green = star(green_pos, green_vel, green_acc, STAR_R, STAR_COLOR)
-
-# TEXT OBJECTS
-TEXT_OBJECTS = []
-# STATIC definitions here, change the content of list and draw later
-green_textX = TextObject(f"R_X = {green.pos.tolist()[0]}", font_style, (255,0,0), (10, 10))
-green_textY = TextObject(f"R_Y = {green.pos.tolist()[1]}", font_style, (255,0,0), (10, 30))
-TEXT_OBJECTS.append(green_textX)
-TEXT_OBJECTS.append(green_textY)
-green_textX = TextObject(f"V_X = {green.vel.tolist()[0]}", font_style, (55,155,55), (10, 50))
-green_textY = TextObject(f"V_Y = {green.vel.tolist()[1]}", font_style, (55,155,55), (10, 70))
-TEXT_OBJECTS.append(green_textX)
-TEXT_OBJECTS.append(green_textY)
 
 # MAKE OTHER STATIC STARS ACC = 0, d/dt(ACC) = 0
 STATIC_STARS = []
@@ -73,13 +64,24 @@ BROWN_STARS = []
 for i in range(BROWN_AMOUNT):
     spawn = star(
         torch.tensor([random.uniform(0,WIDTH), random.uniform(0,HEIGHT)], dtype=TENSOR_TYPE), # RANDOM POSITIONS
-        torch.tensor([random.uniform(-0.1,0.1), random.uniform(-0.1,0.1)], dtype=TENSOR_TYPE), # NO INITIAL VELOCTIIES
+        torch.tensor([random.uniform(-0.5,0.5), random.uniform(-0.5,0.5)], dtype=TENSOR_TYPE), # NO INITIAL VELOCTIIES
         torch.tensor([0, 0], dtype=TENSOR_TYPE), # NO INITIAL ACCELERATIONS
         BROWN_R,BROWN_COLOR # RADIUS, COLOR
         )
     BROWN_STARS.append(spawn)
 
 
+# TEXT OBJECTS
+TEXT_OBJECTS = []
+# STATIC definitions here, change the content of list and draw later
+green_textX = TextObject(f"R_X = {green.pos.tolist()[0]}", font_style, (255,0,0), (10, 10))
+green_textY = TextObject(f"R_Y = {green.pos.tolist()[1]}", font_style, (255,0,0), (10, 30))
+TEXT_OBJECTS.append(green_textX)
+TEXT_OBJECTS.append(green_textY)
+green_textX = TextObject(f"V_X = {green.vel.tolist()[0]}", font_style, (55,155,55), (10, 50))
+green_textY = TextObject(f"V_Y = {green.vel.tolist()[1]}", font_style, (55,155,55), (10, 70))
+TEXT_OBJECTS.append(green_textX)
+TEXT_OBJECTS.append(green_textY)
 
 ########################################## RUN THE ENGINE #############################################
 while True:
@@ -110,20 +112,21 @@ while True:
 # BROWNS
     for item in BROWN_STARS:
         green.acc += G * green.calculate_acc_due_to(item)
+        item.acc += G * item.calculate_acc_due_to(green)
         for brown in BROWN_STARS:
             if brown != item:
                 brown.acc += G * brown.calculate_acc_due_to(item)
         item.move()
         item.check_borders(WIDTH, HEIGHT)
         item.draw(screen)
-        item.acc = torch.tensor([0,0], dtype=TENSOR_TYPE)
+        item.acc = torch.tensor([0,0], dtype=TENSOR_TYPE) # ZERO ACC EVERY ITERATION
 
 # GREEN
     green.move()
     green.check_borders(WIDTH, HEIGHT)
     green.draw(screen)
     ## CALCULATE ACCELERATION DUE TO EVERYONE
-    green.acc = torch.tensor([0,0], dtype=TENSOR_TYPE)
+    green.acc = torch.tensor([0,0], dtype=TENSOR_TYPE) # ZERO ACC EVERY ITERATION
 
 
     pygame.display.flip()
