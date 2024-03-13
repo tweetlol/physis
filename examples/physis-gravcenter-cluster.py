@@ -60,8 +60,8 @@ for i in range(STATIC_AMOUNT):
 BROWN_STARS = []
 for i in range(BROWN_AMOUNT):
     spawn = star(
-        torch.tensor([random.uniform(0,50), random.uniform(HEIGHT/2-50,HEIGHT/2+50)], dtype=TENSOR_TYPE), # RANDOM POSITIONS
-        torch.tensor([1, random.uniform(-.01,.01)], dtype=TENSOR_TYPE), # NO INITIAL VELOCTIIES
+        torch.tensor([random.uniform(200,250), random.uniform(HEIGHT/2-50,HEIGHT/2+50)], dtype=TENSOR_TYPE), # RANDOM POSITIONS
+        torch.tensor([0.1, random.uniform(-.01,.01)], dtype=TENSOR_TYPE), # NO INITIAL VELOCTIIES
         torch.tensor([0, 0], dtype=TENSOR_TYPE), # NO INITIAL ACCELERATIONS
         BROWN_R,BROWN_COLOR # RADIUS, COLOR
         )
