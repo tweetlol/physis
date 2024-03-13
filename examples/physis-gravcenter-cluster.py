@@ -6,8 +6,6 @@ import random
 from pygame.locals import *
 
 from physis import star, TextObject
-
-
 # UI CONSTANTS
 ## STARS
 STAR_R = 5
@@ -26,12 +24,11 @@ FONT_STYLE = 'Arial'
 ## ENGINE
 TENSOR_TYPE = torch.float64
 FPS = 60
-## G SETS GRAVITATION INTERACTION STRENGHT
-G = 1
+G = 0.01 # SETS GRAVITATION INTERACTION STRENGHT
 
 
-BROWN_AMOUNT = 2
-STATIC_AMOUNT = 600
+BROWN_AMOUNT = 30
+STATIC_AMOUNT = 0
 
 
 # ENGINE INIT
@@ -41,8 +38,8 @@ clock = pygame.time.Clock()
 font_style = pygame.font.SysFont(FONT_STYLE, FONT_SIZE)
 
 # INITIAL CONDITIONS
-green_pos = torch.tensor([WIDTH/2 + 100, HEIGHT/2], dtype=TENSOR_TYPE)
-green_vel = torch.tensor([3, 0], dtype=TENSOR_TYPE)
+green_pos = torch.tensor([WIDTH/2, HEIGHT/2], dtype=TENSOR_TYPE)
+green_vel = torch.tensor([0, 0], dtype=TENSOR_TYPE)
 green_acc = torch.tensor([0, 0], dtype=TENSOR_TYPE)
 
 # CELESTIAL POPULATION
@@ -63,13 +60,12 @@ for i in range(STATIC_AMOUNT):
 BROWN_STARS = []
 for i in range(BROWN_AMOUNT):
     spawn = star(
-        torch.tensor([random.uniform(0,WIDTH), random.uniform(0,HEIGHT)], dtype=TENSOR_TYPE), # RANDOM POSITIONS
-        torch.tensor([random.uniform(-0.5,0.5), random.uniform(-0.5,0.5)], dtype=TENSOR_TYPE), # NO INITIAL VELOCTIIES
+        torch.tensor([random.uniform(0,50), random.uniform(HEIGHT/2-50,HEIGHT/2+50)], dtype=TENSOR_TYPE), # RANDOM POSITIONS
+        torch.tensor([1, random.uniform(-.01,.01)], dtype=TENSOR_TYPE), # NO INITIAL VELOCTIIES
         torch.tensor([0, 0], dtype=TENSOR_TYPE), # NO INITIAL ACCELERATIONS
         BROWN_R,BROWN_COLOR # RADIUS, COLOR
         )
     BROWN_STARS.append(spawn)
-
 
 # TEXT OBJECTS
 TEXT_OBJECTS = []
@@ -112,21 +108,23 @@ while True:
 # BROWNS
     for item in BROWN_STARS:
         green.acc += G * green.calculate_acc_due_to(item)
-        item.acc += G * item.calculate_acc_due_to(green)
-        for brown in BROWN_STARS:
+        item.acc += G * 1000 * item.calculate_acc_due_to(green)
+        """NO INTERACTION
+        for brown in BROWN_STARS: 
             if brown != item:
                 brown.acc += G * brown.calculate_acc_due_to(item)
+        """
         item.move()
-        item.check_borders(WIDTH, HEIGHT)
+        #item.check_borders(WIDTH, HEIGHT)
         item.draw(screen)
-        item.acc = torch.tensor([0,0], dtype=TENSOR_TYPE) # ZERO ACC EVERY ITERATION
+        item.acc = torch.tensor([0,0], dtype=TENSOR_TYPE)
 
 # GREEN
     green.move()
     green.check_borders(WIDTH, HEIGHT)
     green.draw(screen)
     ## CALCULATE ACCELERATION DUE TO EVERYONE
-    green.acc = torch.tensor([0,0], dtype=TENSOR_TYPE) # ZERO ACC EVERY ITERATION
+    green.acc = torch.tensor([0,0], dtype=TENSOR_TYPE)
 
 
     pygame.display.flip()
